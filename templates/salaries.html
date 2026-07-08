@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Salaries{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Salaries</h1>
+    <p class="text-gray-500 mt-1">Manage your salary records</p>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg">
+    <a href="/salaries/add" class="flex items-center gap-4 p-5 bg-green-600 text-white rounded-2xl hover:bg-green-700 transition shadow-sm">
+        <span class="bg-green-500 rounded-xl p-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+        </span>
+        <div>
+            <p class="font-semibold">Add Salary</p>
+            <p class="text-green-200 text-xs">Record a new salary</p>
+        </div>
+    </a>
+
+    <a href="/salaries/view" class="flex items-center gap-4 p-5 bg-white border border-gray-200 text-gray-700 rounded-2xl hover:bg-gray-50 transition shadow-sm">
+        <span class="bg-gray-100 rounded-xl p-2 text-gray-500">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+        </span>
+        <div>
+            <p class="font-semibold">View Salaries</p>
+            <p class="text-gray-400 text-xs">Browse all records</p>
+        </div>
+    </a>
+</div>
+{% endblock %}

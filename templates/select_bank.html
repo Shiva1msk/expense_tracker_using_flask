@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Select Bank{% endblock %}
+{% block nav_links %}{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Select Your Bank</h1>
+        <p class="text-gray-500 mt-1">Choose the bank account you want to track</p>
+    </div>
+
+    <form method="POST" class="space-y-3">
+    {% for bank in banks %}
+    <label class="flex items-center gap-4 p-4 bg-white border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition">
+        <input type="radio" name="bank_id" value="{{ bank.id }}" class="accent-blue-600 w-4 h-4">
+        <div>
+            <p class="font-semibold text-gray-800">{{ bank.bank }}</p>
+        </div>
+    </label>
+    {% endfor %}
+
+    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl">
+        Continue
+    </button>
+</form>
+</div>
+{% endblock %}

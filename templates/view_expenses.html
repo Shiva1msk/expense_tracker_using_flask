@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}View Expenses{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-6 flex items-center justify-between">
+        <div>
+            <a href="/expenses" class="text-sm text-gray-400 hover:text-gray-600 transition flex items-center gap-1 mb-3">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Back to Expenses
+            </a>
+            <h1 class="text-2xl font-bold text-gray-800">All Expenses</h1>
+        </div>
+        <a href="/expenses/add" class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition text-sm font-medium shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Add
+        </a>
+    </div>
+
+    {% if expenses %}
+        <!-- Chart -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6">
+            <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Expenses Breakdown</p>
+            <canvas id="expensesChart" height="120"></canvas>
+        </div>
+
+        <!-- List -->
+        <div class="space-y-3">
+            {% for expense in expenses %}
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4 flex items-center justify-between">
+                <div>
+                    <p class="font-semibold text-gray-800">{{ expense.expense_name }}</p>
+                    <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{{ expense.category }}</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="font-bold text-blue-600">₹{{ expense.expense_amount }}</span>
+                    <a href="/expenses/edit/{{ expense.id }}" class="text-gray-400 hover:text-blue-600 transition" title="Edit">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                    </a>
+                    <a href="/expenses/delete/{{ expense.id }}" onclick="return confirm('Delete this expense?')" class="text-gray-400 hover:text-red-500 transition" title="Delete">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <script type="application/json" id="chartData">
+            {
+                "amounts": {{ expenses | map(attribute='expense_amount') | list | tojson }},
+                "categories": {{ expenses | map(attribute='category') | list | tojson }}
+            }
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <script>
+            (function () {
+                var payload = JSON.parse(document.getElementById('chartData').textContent);
+                var rawAmounts = payload.amounts;
+                var rawCats = payload.categories;
+
+                var grouped = {};
+                rawCats.forEach(function (cat, i) {
+                    grouped[cat] = (grouped[cat] || 0) + rawAmounts[i];
+                });
+                var labels = Object.keys(grouped);
+                var data = Object.values(grouped);
+
+                var colors = [
+                    'rgba(59,130,246,0.7)', 'rgba(16,185,129,0.7)', 'rgba(245,158,11,0.7)',
+                    'rgba(239,68,68,0.7)', 'rgba(139,92,246,0.7)', 'rgba(236,72,153,0.7)',
+                    'rgba(20,184,166,0.7)', 'rgba(249,115,22,0.7)', 'rgba(107,114,128,0.7)'
+                ];
+
+                new Chart(document.getElementById('expensesChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Amount (₹)',
+                            data: data,
+                            backgroundColor: colors.slice(0, labels.length),
+                            borderColor: colors.slice(0, labels.length).map(function (c) { return c.replace('0.7', '1'); }),
+                            borderWidth: 1,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { callback: function (val) { return '₹' + val; } }
+                            }
+                        }
+                    }
+                });
+            })();
+        </script>
+
+    {% else %}
+        <div class="flex flex-col items-center justify-center py-20 text-center">
+            <div class="bg-gray-100 rounded-full p-5 mb-4">
+                <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+            </div>
+            <p class="text-gray-500 font-medium">No expenses found</p>
+            <p class="text-gray-400 text-sm mt-1">Add your first expense to get started</p>
+            <a href="/expenses/add" class="mt-5 bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 transition text-sm font-medium shadow-sm">Add Expense</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
